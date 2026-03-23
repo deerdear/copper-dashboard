@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copper Investment Analyzer</title>
+<style>
+:root{--bg:#0d1117;--s:#161b22;--s2:#1c2129;--bd:#30363d;--t:#e6edf3;--td:#8b949e;--a:#c87533;--al:#d4915a;--g:#3fb950;--gd:#1a4028;--r:#f85149;--rd:#4a1c1a;--y:#d29922;--yd:#3d2e0a;--b:#58a6ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--t);line-height:1.5}
+.hdr{background:linear-gradient(135deg,#1a1208,#2d1f0e,#1a1208);border-bottom:1px solid var(--a);padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.hdr h1{font-size:22px;color:var(--al)}.hdr .sub{color:var(--td);font-size:13px}
+.hdr .live{display:flex;align-items:center;gap:8px}
+.hdr .cu-price{font-size:28px;font-weight:700;color:var(--al)}
+.hdr .cu-unit{font-size:13px;color:var(--td)}
+.hdr .cu-change{font-size:14px;font-weight:600;padding:2px 8px;border-radius:4px}
+.tabs{display:flex;background:var(--s);border-bottom:1px solid var(--bd);padding:0 32px;overflow-x:auto}
+.tab{padding:11px 18px;cursor:pointer;color:var(--td);font-size:13px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--t)}.tab.active{color:var(--al);border-bottom-color:var(--a)}
+.ctr{max-width:1440px;margin:0 auto;padding:20px 32px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;background:var(--s2);border-bottom:1px solid var(--bd);color:var(--td);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
+th:hover{color:var(--t)}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:hover td{background:var(--s2)}
+.b{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600}
+.bg{background:var(--gd);color:var(--g)}.br{background:var(--rd);color:var(--r)}.by{background:var(--yd);color:var(--y)}.bb{background:#0d2240;color:var(--b)}
+.kpi-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:14px}
+.kpi .l{font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:.5px}
+.kpi .v{font-size:24px;font-weight:700;margin-top:2px}
+.kpi .d{font-size:11px;color:var(--td);margin-top:2px}
+.kpi.bu .v{color:var(--g)}.kpi.be .v{color:var(--r)}.kpi.ne .v{color:var(--y)}.kpi.ac .v{color:var(--al)}
+.bar-c{display:flex;align-items:center;gap:6px}.bar{height:6px;border-radius:3px;background:var(--bd);flex:1;overflow:hidden;min-width:60px}
+.bar-f{height:100%;border-radius:3px}.bar-v{font-size:11px;color:var(--td);min-width:28px;text-align:right}
+.sect{font-size:15px;font-weight:600;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:900px){.two{grid-template-columns:1fr}}
+.box{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:12px}
+.box h4{color:var(--al);margin-bottom:6px;font-size:13px}.box p{font-size:12px;color:var(--td)}
+.sc-btn{padding:9px 16px;border:1px solid var(--bd);border-radius:6px;background:var(--s);color:var(--t);cursor:pointer;font-size:13px;font-weight:500;transition:.15s}
+.sc-btn:hover{border-color:var(--a)}.sc-btn.active{background:var(--a);border-color:var(--a);color:#fff}
+.pnl-p{color:var(--g);font-weight:600}.pnl-n{color:var(--r);font-weight:600}
+.tl{position:relative;padding-left:28px}
+.tl::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--bd)}
+.tl-i{position:relative;margin-bottom:18px;background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:14px}
+.tl-i::before{content:'';position:absolute;left:-25px;top:18px;width:10px;height:10px;border-radius:50%;border:2px solid var(--a);background:var(--bg)}
+.tl-i.past::before{background:var(--a)}.tl-i .dt{font-size:11px;color:var(--al);font-weight:600;margin-bottom:3px}
+.tl-i h4{margin-bottom:4px;font-size:14px}.tl-i .imp{font-size:12px;color:var(--td)}
+.chain{background:var(--s);border:1px solid var(--bd);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.chain-h{padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.chain-h h4{font-size:13px;white-space:nowrap}.chain-h .tn{font-size:11px;color:var(--td)}
+.chain-b{padding:10px 14px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:4px 10px;margin:3px;font-size:12px}
+.chip .tk{color:var(--al);font-weight:600}
+.flt{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.flt label{font-size:11px;color:var(--td);text-transform:uppercase;letter-spacing:.5px}
+select{background:var(--s);border:1px solid var(--bd);color:var(--t);padding:5px 10px;border-radius:4px;font-size:12px}
+select:focus{outline:none;border-color:var(--a)}
+input[type=range]{-webkit-appearance:none;background:var(--bd);height:4px;border-radius:2px;outline:none;width:100px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--al);cursor:pointer}
+.sc-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.sig-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:700px){.sig-row{grid-template-columns:1fr}}
+.sig{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:14px}
+.sig .sl{font-size:11px;color:var(--td);text-transform:uppercase;margin-bottom:6px}
+.sig .sv{font-size:18px;font-weight:700}
+.sig .sd{font-size:11px;color:var(--td);margin-top:4px}
+.data-stale{background:var(--yd);color:#000;padding:8px 16px;border-radius:6px;font-size:12px;margin-bottom:16px;display:none}
+.ev-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.ev-card{background:var(--s);border:1px solid var(--bd);border-radius:8px;padding:16px;flex:1;min-width:200px}
+.ev-card h4{color:var(--al);margin-bottom:6px;font-size:13px}
+.ev-card .ev-val{font-size:22px;font-weight:700;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <h1>Copper Investment Analyzer</h1>
+    <div class="sub">Bull &amp; Bear Analysis | Sources: S&P Global, ICSG, GS, JPM, Citi, StoneX | <span id="data-ts">No live data</span></div>
+  </div>
+  <div class="live">
+    <div>
+      <div class="cu-price" id="cu-price">--</div>
+      <div class="cu-unit">COMEX Cu /lb</div>
+    </div>
+    <div id="cu-change" class="cu-change">--</div>
+  </div>
+</div>
+<div class="tabs" id="tab-bar"></div>
+<div class="ctr" id="main"></div>
+
+<script>
+// Inline market data fallback (for file:// protocol where fetch fails)
+const INLINE_DATA={"updated":"2026-03-20 23:39","tickers":{"FCX":{"price":52.09,"currency":"USD","change_pct":-2.85,"market_cap":74863837184,"market_cap_fmt":"$74.9B","pe_ratio":34.3,"forward_pe":14.1,"dividend_yield":112.0,"w52_high":69.75,"w52_low":27.66,"ma_50":61.59,"ma_200":47.84,"ytd_return":0.56,"m1_return":-16.75,"beta":1.44,"avg_volume":20110013,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-25.3,"pct_from_low":88.3},"BHP":{"price":65.29,"currency":"USD","change_pct":-3.09,"market_cap":166459506688,"market_cap_fmt":"$166.5B","pe_ratio":16.2,"forward_pe":12.6,"dividend_yield":395.0,"w52_high":83.22,"w52_low":39.73,"ma_50":71.33,"ma_200":58.53,"ytd_return":7.8,"m1_return":-11.32,"beta":0.74,"avg_volume":4273977,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-21.5,"pct_from_low":64.3},"SCCO":{"price":152.71,"currency":"USD","change_pct":-4.44,"market_cap":126148460544,"market_cap_fmt":"$126.1B","pe_ratio":29.4,"forward_pe":26.3,"dividend_yield":250.0,"w52_high":223.89,"w52_low":72.28,"ma_50":190.49,"ma_200":133.1,"ytd_return":4.02,"m1_return":-21.31,"beta":1.08,"avg_volume":2059703,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-31.8,"pct_from_low":111.3},"IVN":{"price":10.9,"currency":"CAD","change_pct":-1.89,"market_cap":15542994944,"market_cap_fmt":"$15.5B","pe_ratio":41.9,"forward_pe":12.1,"w52_high":20.34,"w52_low":8.76,"ma_50":15.79,"ma_200":13.5,"ytd_return":-32.04,"m1_return":-30.13,"beta":1.77,"avg_volume":4270476,"above_50ma":false,"above_200ma":false,"golden_cross":true,"pct_from_high":-46.4,"pct_from_low":24.4},"KGHM":{"price":257.2,"currency":"PLN","change_pct":-1.0,"market_cap":51440001024,"market_cap_fmt":"$51.4B","pe_ratio":20.0,"forward_pe":12.0,"w52_high":396.4,"w52_low":100.0,"ma_50":312.25,"ma_200":205.18,"ytd_return":-9.28,"m1_return":-13.98,"beta":1.25,"avg_volume":1257943,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-35.1,"pct_from_low":157.2},"FM":{"price":29.19,"currency":"CAD","change_pct":-2.01,"market_cap":24174753792,"market_cap_fmt":"$24.2B","forward_pe":9.7,"w52_high":45.17,"w52_low":14.41,"ma_50":37.97,"ma_200":30.09,"ytd_return":-21.72,"m1_return":-19.83,"beta":1.91,"avg_volume":2662911,"above_50ma":false,"above_200ma":false,"golden_cross":true,"pct_from_high":-35.4,"pct_from_low":102.6},"TECK.B":{"price":62.31,"currency":"CAD","change_pct":-4.24,"market_cap":30475792384,"market_cap_fmt":"$30.5B","pe_ratio":22.0,"forward_pe":16.1,"dividend_yield":77.0,"w52_high":85.42,"w52_low":40.23,"ma_50":74.69,"ma_200":60.24,"ytd_return":-5.41,"m1_return":-23.2,"beta":1.53,"avg_volume":1214902,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-27.1,"pct_from_low":54.9},"HBM":{"price":24.75,"currency":"CAD","change_pct":-3.24,"market_cap":9822764032,"market_cap_fmt":"$9.8B","pe_ratio":12.6,"forward_pe":8.9,"dividend_yield":8.0,"w52_high":38.94,"w52_low":8.49,"ma_50":33.23,"ma_200":22.53,"ytd_return":-10.3,"m1_return":-26.88,"beta":2.03,"avg_volume":2006266,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-36.4,"pct_from_low":191.5},"ERO":{"price":32.41,"currency":"CAD","change_pct":-2.06,"market_cap":3379600128,"market_cap_fmt":"$3.4B","pe_ratio":9.4,"forward_pe":5.3,"w52_high":53.69,"w52_low":13.17,"ma_50":42.46,"ma_200":30.31,"ytd_return":-18.75,"m1_return":-20.25,"beta":1.51,"avg_volume":541730,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-39.6,"pct_from_low":146.1},"CPER":{"price":32.35,"currency":"USD","change_pct":-4.06,"market_cap":null,"market_cap_fmt":null,"pe_ratio":3.7,"w52_high":40.44,"w52_low":25.65,"ma_50":36.13,"ma_200":32.32,"ytd_return":-7.52,"m1_return":-8.98,"avg_volume":1438628,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-20.0,"pct_from_low":26.1},"COPX":{"price":69.08,"currency":"USD","change_pct":-4.56,"market_cap":null,"market_cap_fmt":null,"pe_ratio":21.0,"dividend_yield":202.0,"w52_high":99.99,"w52_low":30.77,"ma_50":84.99,"ma_200":62.3,"ytd_return":-5.45,"m1_return":-19.79,"avg_volume":5530706,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-30.9,"pct_from_low":124.5},"JJCTF":{"price":51.98,"currency":"USD","change_pct":0.0,"w52_high":81.27,"w52_low":44.27,"ma_50":52.23,"ma_200":51.07,"m1_return":0.0,"avg_volume":14,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-36.0,"pct_from_low":17.4},"WPM":{"price":114.62,"currency":"USD","change_pct":-5.47,"market_cap":52199809024,"market_cap_fmt":"$52.2B","pe_ratio":35.4,"forward_pe":18.7,"dividend_yield":64.0,"w52_high":165.76,"w52_low":68.03,"ma_50":142.94,"ma_200":111.48,"ytd_return":-2.76,"m1_return":-21.14,"beta":1.11,"avg_volume":2321766,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-30.9,"pct_from_low":68.5},"FNV":{"price":222.54,"currency":"USD","change_pct":-3.68,"market_cap":42992947200,"market_cap_fmt":"$43.0B","pe_ratio":38.7,"forward_pe":23.4,"dividend_yield":76.0,"w52_high":285.67,"w52_low":140.03,"ma_50":251.65,"ma_200":204.41,"ytd_return":6.87,"m1_return":-12.57,"beta":0.9,"avg_volume":848527,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-22.1,"pct_from_low":58.9},"CAT":{"price":680.88,"currency":"USD","change_pct":-1.13,"market_cap":318637932544,"market_cap_fmt":"$318.6B","pe_ratio":36.2,"forward_pe":24.6,"dividend_yield":88.0,"w52_high":789.81,"w52_low":267.3,"ma_50":695.07,"ma_200":530.55,"ytd_return":14.05,"m1_return":-10.47,"beta":1.53,"avg_volume":2748591,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-13.8,"pct_from_low":154.7},"SAND":{"price":334.1,"currency":"SEK","change_pct":-1.07,"market_cap":419090333696,"market_cap_fmt":"$419.1B","pe_ratio":28.6,"forward_pe":24.6,"dividend_yield":178.0,"w52_high":404.0,"w52_low":168.1,"ma_50":360.87,"ma_200":285.64,"ytd_return":10.7,"m1_return":-11.5,"beta":1.36,"avg_volume":2576101,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-17.3,"pct_from_low":98.8},"Aurubis":{"price":154.0,"currency":"EUR","change_pct":-0.77,"market_cap":6723490816,"market_cap_fmt":"$6.7B","pe_ratio":11.1,"forward_pe":16.3,"dividend_yield":103.0,"w52_high":176.2,"w52_low":71.1,"ma_50":160.67,"ma_200":118.02,"ytd_return":23.24,"m1_return":-8.06,"beta":1.23,"avg_volume":235711,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-12.6,"pct_from_low":116.6},"AA":{"price":56.45,"currency":"USD","change_pct":-3.75,"market_cap":14893753344,"market_cap_fmt":"$14.9B","pe_ratio":12.9,"forward_pe":10.1,"dividend_yield":68.0,"w52_high":68.4,"w52_low":21.53,"ma_50":61.84,"ma_200":41.94,"ytd_return":0.0,"m1_return":-5.27,"beta":1.78,"avg_volume":7520198,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-17.5,"pct_from_low":162.2},"HG=F":{"price":5.3,"currency":"USD","change_pct":-3.05,"w52_high":6.508,"w52_low":4.0985,"ma_50":5.84,"ma_200":5.22,"ytd_return":-5.99,"m1_return":-7.47,"avg_volume":1742,"above_50ma":false,"above_200ma":true,"golden_cross":true,"pct_from_high":-18.5,"pct_from_low":29.4}}};
+
+// ============ DATA ============
+const INV=[
+{tk:"FCX",nm:"Freeport-McMoRan",ex:"NYSE",tp:"miner-major",al:"strong",rk:"medium",lev:90,act:"BUY",
+ kf:"Largest public Cu producer. Grasberg Block Cave restart Q2 2026. Most direct listed leverage.",
+ sc:{su:5,en:4,ai:3,ge:4,ca:4,ma:3},rt:{bear:-20,base:15,bull:45,superbull:80},ch:"mining"},
+{tk:"BHP",nm:"BHP Group",ex:"NYSE",tp:"miner-major",al:"strong",rk:"low",lev:50,act:"BUY",
+ kf:"Escondida (world's largest Cu mine). Cu #1 priority post-Anglo bid. Diversified dampens pure Cu leverage.",
+ sc:{su:4,en:4,ai:3,ge:3,ca:2,ma:5},rt:{bear:-10,base:10,bull:25,superbull:45},ch:"mining"},
+{tk:"SCCO",nm:"Southern Copper",ex:"NYSE",tp:"miner-major",al:"strong",rk:"medium",lev:85,act:"BUY",
+ kf:"Premium low-cost producer. Mexico + Peru. Long reserve life. May be priced in after 66% 2025 rally.",
+ sc:{su:5,en:4,ai:3,ge:3,ca:2,ma:3},rt:{bear:-15,base:12,bull:35,superbull:65},ch:"mining"},
+{tk:"IVN",nm:"Ivanhoe Mines",ex:"TSX",tp:"miner-major",al:"strong",rk:"high",lev:95,act:"BUY",
+ kf:"Kamoa-Kakula: 388K t 2025. New smelter Dec 2025. Western Forelands could double deposit. DRC risk.",
+ sc:{su:5,en:4,ai:3,ge:2,ca:4,ma:4},rt:{bear:-25,base:20,bull:55,superbull:100},ch:"mining"},
+{tk:"KGHM",nm:"KGHM Polska Miedz",ex:"WSE",tp:"miner-major",al:"moderate",rk:"medium",lev:70,act:"BUY",
+ kf:"Polish state-controlled. European exposure. Sierra Gorda (Chile). Undervalued vs peers.",
+ sc:{su:3,en:3,ai:2,ge:4,ca:2,ma:2},rt:{bear:-15,base:10,bull:30,superbull:50},ch:"mining"},
+{tk:"FM",nm:"First Quantum Minerals",ex:"TSX",tp:"miner-mid",al:"tactical",rk:"high",lev:80,act:"AVOID",
+ kf:"Cobre Panama: even restart = diluted economics (royalties 2%→8-15%, state equity 20-40%). At CAD $31, bull case CAD $35-45 (not $50-65). Resource nationalism + 3.3x leverage = wrong asymmetry.",
+ sc:{su:4,en:3,ai:2,ge:1,ca:3,ma:3},rt:{bear:-55,base:5,bull:30,superbull:60},ch:"mining"},
+{tk:"TECK.B",nm:"Teck Resources",ex:"TSX",tp:"miner-mid",al:"moderate",rk:"medium",lev:65,act:"BUY",
+ kf:"Post-coal Cu focus. QB2 ramp. Potential Anglo merger (Anglo Teck). Highland Valley.",
+ sc:{su:3,en:3,ai:2,ge:3,ca:3,ma:5},rt:{bear:-18,base:12,bull:35,superbull:55},ch:"mining"},
+{tk:"HBM",nm:"Hudbay Minerals",ex:"TSX",tp:"miner-mid",al:"moderate",rk:"high",lev:75,act:"BUY",
+ kf:"Peru + Canada. Cu-gold mix. M&A target premium in consolidating market.",
+ sc:{su:3,en:3,ai:2,ge:2,ca:2,ma:4},rt:{bear:-25,base:15,bull:40,superbull:70},ch:"mining"},
+{tk:"ERO",nm:"Ero Copper",ex:"TSX",tp:"miner-mid",al:"moderate",rk:"high",lev:85,act:"BUY",
+ kf:"Brazil focused. Tucuma + MCSA. Pure-play copper. Small cap, high operational leverage.",
+ sc:{su:3,en:3,ai:2,ge:2,ca:2,ma:4},rt:{bear:-30,base:18,bull:50,superbull:85},ch:"mining"},
+{tk:"CPER",nm:"US Copper Index Fund",ex:"NYSE",tp:"etf",al:"strong",rk:"medium",lev:100,act:"BUY",
+ kf:"Direct copper futures ETF. No company risk. Tracking error from roll/contango.",
+ sc:{su:5,en:5,ai:5,ge:5,ca:3,ma:0},rt:{bear:-15,base:8,bull:30,superbull:50},ch:"commodity"},
+{tk:"COPX",nm:"Global X Copper Miners ETF",ex:"NYSE",tp:"etf",al:"strong",rk:"medium",lev:80,act:"BUY",
+ kf:"Basket of mining equities. Diversified company risk. Operational leverage.",
+ sc:{su:4,en:4,ai:3,ge:3,ca:3,ma:3},rt:{bear:-22,base:14,bull:40,superbull:70},ch:"mining"},
+{tk:"JJCTF",nm:"iPath Bloomberg Cu ETN",ex:"NYSE",tp:"etf",al:"strong",rk:"medium",lev:100,act:"HOLD",
+ kf:"Cu subindex ETN. Direct exposure. Counterparty risk (Barclays). Roll costs.",
+ sc:{su:5,en:5,ai:5,ge:5,ca:3,ma:0},rt:{bear:-15,base:8,bull:30,superbull:50},ch:"commodity"},
+{tk:"HG=F",nm:"COMEX Copper Futures",ex:"CME",tp:"futures",al:"strong",rk:"high",lev:100,act:"LONG",
+ kf:"Direct leverage. Most liquid US contract. Options for defined-risk expression.",
+ sc:{su:5,en:5,ai:5,ge:5,ca:5,ma:0},rt:{bear:-20,base:10,bull:35,superbull:55},ch:"commodity"},
+{tk:"WPM",nm:"Wheaton Precious Metals",ex:"NYSE",tp:"royalty",al:"moderate",rk:"low",lev:25,act:"HOLD",
+ kf:"Cu streaming (Salobo, Constancia). Diversified Au/Ag/Cu. Lower leverage, lower risk.",
+ sc:{su:2,en:2,ai:1,ge:2,ca:1,ma:1},rt:{bear:-5,base:8,bull:18,superbull:30},ch:"royalty"},
+{tk:"FNV",nm:"Franco-Nevada",ex:"NYSE",tp:"royalty",al:"moderate",rk:"low",lev:15,act:"HOLD",
+ kf:"Small Cu royalty. Primarily gold. Cobre Panama royalty (large but uncertain).",
+ sc:{su:2,en:1,ai:1,ge:2,ca:3,ma:1},rt:{bear:-3,base:5,bull:15,superbull:25},ch:"royalty"},
+{tk:"CAT",nm:"Caterpillar",ex:"NYSE",tp:"equipment",al:"moderate",rk:"low",lev:20,act:"HOLD",
+ kf:"Mining equipment. 2.5x more rock = more equipment demand. Diversified beyond mining.",
+ sc:{su:3,en:2,ai:1,ge:1,ca:1,ma:0},rt:{bear:-8,base:8,bull:15,superbull:25},ch:"equipment"},
+{tk:"EPIR",nm:"Epiroc",ex:"STO",tp:"equipment",al:"moderate",rk:"low",lev:30,act:"BUY",
+ kf:"Pure mining/infra equipment. Automation + electrification. Best positioned for ore grade decline.",
+ sc:{su:4,en:3,ai:2,ge:1,ca:1,ma:1},rt:{bear:-10,base:10,bull:22,superbull:35},ch:"equipment"},
+{tk:"Aurubis",nm:"Aurubis AG",ex:"ETR",tp:"recycling",al:"moderate",rk:"medium",lev:50,act:"BUY",
+ kf:"Europe's largest Cu refiner + major recycler. Benefits from both primary and secondary themes.",
+ sc:{su:3,en:3,ai:2,ge:3,ca:2,ma:2},rt:{bear:-12,base:10,bull:25,superbull:40},ch:"recycling"},
+{tk:"AA",nm:"Alcoa (Aluminum)",ex:"NYSE",tp:"equipment",al:"hedge",rk:"medium",lev:-20,act:"PAIR TRADE",
+ kf:"Primary Cu substitute. Al substitution increases at $4+/lb Cu. Most easy subs done. Marginal hedge.",
+ sc:{su:1,en:2,ai:1,ge:1,ca:1,ma:0},rt:{bear:10,base:5,bull:-5,superbull:-10},ch:"substitute"},
+];
+
+const SCEN={
+  bear:{nm:"Bear",pr:"$9,000-10,500/t",pb:35,cond:"China buyers strike persists. DRC/Chile supply delivers. Spec long liquidation. Tariff demand void bites. Yangshan stays below $50. Aluminum substitution accelerates."},
+  base:{nm:"Base",pr:"$10,500-12,000/t",pb:35,cond:"China demand stabilizes but doesn't recover. Supply growth meets demand growth. Inventories slowly normalize. Resource nationalism caps miner upside."},
+  bull:{nm:"Bull",pr:"$12,000-14,000/t",pb:20,cond:"China stimulus surprises. Deficit materializes earlier. Cobre Panama stays closed. AI demand surges. India inflects."},
+  superbull:{nm:"Super-Bull",pr:"$14,000+/t",pb:10,cond:"Inventory drawdown, supply crisis, US/EU/China stockpiling competition. Requires demand recovery + supply disruption simultaneously."}
+};
+
+const CATS=[
+  {dt:"Dec 2025",ti:"2026 TC/RC benchmark: $0/t",im:"Antofagasta agrees ZERO processing charges with Chinese smelter. Historic first. Confirms acute concentrate scarcity.",tp:"past",sg:"critical"},
+  {dt:"Jan 6, 2026",ti:"Cu record $13,387/t on LME",im:"22% rally from Nov lows. S&P Global publishes 'Copper in the Age of AI' study.",tp:"past",sg:"high"},
+  {dt:"Jan 2026",ti:"Panama authorizes stockpile processing",im:"Mulino allows export of 70,000t stored concentrate from Cobre Panama. Positive signal for restart.",tp:"past",sg:"high"},
+  {dt:"Feb 2026",ti:"Global inventories hit 1.01 MMT (23-yr high)",im:"COMEX at 536K MT. But mostly tariff-driven US stockpiling + contracted deliveries. Physical market still tight.",tp:"past",sg:"medium"},
+  {dt:"Feb 2026",ti:"S&P upgrades First Quantum outlook to positive",im:"Credit agency expects Cobre Panama restart H1 2026, production ramp H2. FM stock rallies.",tp:"past",sg:"high"},
+  {dt:"Mar 2026",ti:"Yangshan premium collapses to $34/t - Chinese buyers strike",im:"BEARISH: Physical demand destruction. Raw copper costs exceed retail price of finished goods. 20% of fabricator capacity shut.",tp:"current",sg:"critical"},
+  {dt:"Mar 2026",ti:"Goldman Sachs projects 300K t surplus, cuts target to $10-11K/t",im:"BEARISH: Demand pull-forward reversal. China demand 'more acute than 2024'. Lone major bear among banks.",tp:"current",sg:"high"},
+  {dt:"Mar 2026",ti:"Chinese smelters confirm >10% production cuts for 2026",im:"BULLISH: Govt halted ~2 MMT new smelting capacity. Refined supply tightening.",tp:"current",sg:"high"},
+  {dt:"Mar 2026",ti:"SHFE traders hold widest net short since 2021",im:"BEARISH: Chinese industrial players with physical visibility are max short. Western specs max long. Historical edge: physical visibility wins.",tp:"current",sg:"high"},
+  {dt:"Apr 2026",ti:"SGS audit conclusion (Cobre Panama)",im:"Sets stage for June decision. Even restart = diluted economics for FM (resource nationalism).",tp:"upcoming",sg:"high"},
+  {dt:"Q2 2026",ti:"Tariff front-loading demand void bites",im:"BEARISH: 600K t pre-bought US inventory creates demand void. Buyers won't repurchase at normal rates through 2026.",tp:"upcoming",sg:"high"},
+  {dt:"Q2 2026",ti:"Grasberg Block Cave restart (FCX)",im:"Major new supply addition. 726K t/y target by 2027-29.",tp:"upcoming",sg:"medium"},
+  {dt:"Q2-Q3 2026",ti:"DRC/Chile supply pipeline delivers",im:"BEARISH: Kamoa-Kakula 380-420K, Chile 13 projects adding ~500K t/y. Real tonnage, not projections.",tp:"upcoming",sg:"high"},
+  {dt:"Jun 2026",ti:"COBRE PANAMA DECISION",im:"Binary for FM stock (but even restart = diluted terms). Not binary for copper price. Resource nationalism precedent.",tp:"upcoming",sg:"critical"},
+  {dt:"H2 2026",ti:"Spec long liquidation risk window",im:"BEARISH: If physical market doesn't recover and inventory keeps building, momentum funds unwind. 80th percentile → rapid 15-25% correction.",tp:"upcoming",sg:"critical"},
+  {dt:"2027+",ti:"Structural deficit becomes visible",im:"BULLISH: Long-term supply-demand math undeniable. Best entry after near-term correction.",tp:"future",sg:"high"},
+];
+
+const CHAIN=[
+  {nm:"Mining / Extraction",th:"Supply constrained long-term. BUT resource nationalism caps equity upside >$5/lb. Prefer physical Cu over miners at high prices.",cos:["FCX","BHP","SCCO","IVN","FM","TECK.B","KGHM","HBM","ERO"]},
+  {nm:"Smelting / Refining",th:"TC/RC at $0 benchmark. China dominates 14 MMT, growing to 17. Government halting 2 MMT new capacity.",cos:["Aurubis","IVN"]},
+  {nm:"Physical / Commodity",th:"Direct price exposure. $8,800/t floor. Asymmetric upside. Roll costs in contango.",cos:["CPER","JJCTF","HG=F"]},
+  {nm:"Mining Equipment",th:"Ore grade decline forces 2.5x more rock processing. Underground transitions need specialized kit.",cos:["CAT","EPIR"]},
+  {nm:"Royalty / Streaming",th:"Lower leverage, lower risk. Benefits from price without execution risk.",cos:["WPM","FNV"]},
+  {nm:"Recycling / Secondary",th:"4.2% CAGR (2x primary growth). 25-40 year structural lag. Long-dated option on circular economy.",cos:["Aurubis"]},
+];
+
+let mktData=null;
+let curScen='base';
+let scenProbs={bear:35,base:35,bull:20,superbull:10};
+
+// ============ DOM HELPERS ============
+function $(tag,at,ch){
+  const e=document.createElement(tag);
+  if(at)for(const[k,v]of Object.entries(at)){
+    if(k==='text')e.textContent=v;else if(k==='cls')e.className=v;
+    else if(k==='onclick')e.addEventListener('click',v);
+    else if(k==='style')e.setAttribute('style',v);
+    else e.setAttribute(k,v);
+  }
+  if(ch)(Array.isArray(ch)?ch:[ch]).forEach(c=>{if(typeof c==='string')e.appendChild(document.createTextNode(c));else if(c)e.appendChild(c)});
+  return e;
+}
+function badge(t,c){return $('span',{cls:'b b'+c,text:t})}
+function abadge(a){const m={strong:'g',moderate:'y',tactical:'b',hedge:'r'},l={strong:'Strong Bull',moderate:'Moderate',tactical:'Tactical',hedge:'Hedge'};return badge(l[a]||a,m[a]||'y')}
+function rbadge(r){return badge(r.charAt(0).toUpperCase()+r.slice(1),{low:'g',medium:'y',high:'r'}[r])}
+function actbadge(a){return badge(a,a.includes('BUY')||a==='LONG'?'g':a==='AVOID'?'r':a.includes('HOLD')?'y':'b')}
+function levbar(v){const abs=Math.abs(v),col=v>=0?'var(--a)':'var(--r)';
+  return $('div',{cls:'bar-c'},[$('div',{cls:'bar'},[$('div',{cls:'bar-f',style:'width:'+abs+'%;background:'+col})]),$('div',{cls:'bar-v',text:v+'%'})])}
+function scell(v){const c=v>=4?'var(--g)':v>=3?'var(--y)':v>=2?'var(--td)':'var(--r)';
+  return $('td',{},[$('div',{cls:'sc-cell',style:'display:flex;align-items:center;gap:4px'},[$('span',{cls:'sc-dot',style:'background:'+c}),document.createTextNode(v)])])}
+function pctSpan(v,inv){if(v==null)return $('span',{text:'--',style:'color:var(--td)'});
+  const pos=inv?v<0:v>0;return $('span',{text:(v>0?'+':'')+v.toFixed(1)+'%',style:'color:'+(pos?'var(--g)':'var(--r)')+';font-weight:600'})}
+
+function getMkt(tk){return mktData&&mktData.tickers&&mktData.tickers[tk]?mktData.tickers[tk]:null}
+
+// ============ TABS ============
+const panels=['dashboard','universe','scenarios','timing','catalysts','supplychain','scorecard'];
+const pnames=['Dashboard','Universe','Scenarios','Market Timing','Catalysts','Supply Chain','Scorecard'];
+function buildTabs(){const bar=document.getElementById('tab-bar');
+  panels.forEach((id,i)=>{const t=$('div',{cls:'tab'+(i===0?' active':''),text:pnames[i],onclick:()=>showPanel(id)});t.dataset.panel=id;bar.appendChild(t)})}
+function showPanel(id){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id));
+  const m=document.getElementById('main');while(m.firstChild)m.removeChild(m.firstChild);R[id](m)}
+
+// ============ DASHBOARD ============
+function renderDash(root){
+  const cu=getMkt('HG=F');
+  const cuPriceLb=cu&&cu.price?cu.price:5.76;
+  const cuPriceT=Math.round(cuPriceLb*2204.62);
+  const kpis=[
+    {l:'Cu Price (per tonne)',v:'$'+cuPriceT.toLocaleString(),d:'$'+cuPriceLb.toFixed(2)+'/lb COMEX',c:cuPriceT>11000?'bu':'ne'},
+    {l:'Yangshan Premium',v:'$34/t',d:'BEARISH - buyers strike. Normal: $60-100/t',c:'be'},
+    {l:'Global Visible Inventory',v:'1.39M MT',d:'23-year high. COMEX 536K + SHFE 433K',c:'be'},
+    {l:'Structural Deficit 2040',v:'10 MMT',d:'S&P Global, Jan 2026 (long-term bull)',c:'ac'},
+    {l:'2026 TC/RC Benchmark',v:'$0/t',d:'Historic zero. Concentrate scarcity signal',c:'bu'},
+    {l:'Bear Case Target',v:'$9-11K/t',d:'GS: $10-11K. World Bank: $9.8K. StoneX: $11.5K',c:'be'},
+    {l:'Spec Net Longs',v:'80th %ile',d:'CFTC longs stretched. SHFE max short since 2021',c:'be'},
+    {l:'Incentive Price Floor',v:'$8,800/t',d:'$4.00/lb - below = all dev stops',c:'ac'},
+  ];
+  const g=$('div',{cls:'kpi-g'});
+  kpis.forEach(k=>g.appendChild($('div',{cls:'kpi '+k.c},[$('div',{cls:'l',text:k.l}),$('div',{cls:'v',text:k.v}),$('div',{cls:'d',text:k.d})])));
+  root.appendChild(g);
+
+  // Two-col
+  const tw=$('div',{cls:'two'});
+  const left=$('div');
+  left.appendChild($('div',{cls:'sect',text:'Thesis Summary'}));
+  [{t:'BULL: Structural Deficit (3-10yr)',p:'17-25yr mine development. Ore grades down 60%. 10 MMT gap by 2040 (S&P Global). Energy transition + AI/data centers + defense. Supply pipeline too thin. The long-term case is close to mathematical certainty.'},
+   {t:'BEAR: Physical Market Broken (6-24mo)',p:'Yangshan premium $34/t (buyers strike). Inventories at 1.39M t (23-yr high). China demand Q4 2025: -8% YoY. 20% of fabricator capacity shut. DRC/Chile supply delivering. Specs at 80th percentile long vs Chinese industrials max short.'},
+   {t:'KEY INSIGHT: Timeframe Mismatch',p:'Copper is priced for 2030 in 2026 spot. The commodity can be in long-term structural deficit AND correct 20-30% when physical demand seizes up. Best trade: wait for bear case to play out, build structural long at lower prices.'},
+   {t:'RESOURCE NATIONALISM RISK',p:'Higher Cu prices trigger host govt renegotiation. Chile progressive royalties up to 46.5%. DRC windfall taxes. Panama contract invalidated. Indonesia forced divestiture. The bull case for Cu commodity ≠ bull case for Cu equities above ~$5/lb.'},
+   {t:'Updated Mar 20, 2026',p:'FM downgraded to AVOID (resource nationalism caps upside). Bear scenario raised to 35% (from 20%). Goldman projects 300K t surplus. Chinese SHFE traders widest net short since 2021.'}
+  ].forEach(b=>left.appendChild($('div',{cls:'box'},[$('h4',{text:b.t}),$('p',{text:b.p})])));
+  tw.appendChild(left);
+
+  // Live market data summary
+  const right=$('div');
+  right.appendChild($('div',{cls:'sect',text:'Market Snapshot (Live Data)'}));
+  const mktTbl=$('table');
+  const mh=$('thead');const mhr=$('tr');
+  ['Ticker','Price','1M','YTD','vs 52w High','Signal'].forEach(h=>mhr.appendChild($('th',{text:h})));
+  mh.appendChild(mhr);mktTbl.appendChild(mh);
+  const mb=$('tbody');
+  const keyTks=['HG=F','FCX','BHP','SCCO','IVN','FM','CPER','COPX'];
+  keyTks.forEach(tk=>{
+    const d=getMkt(tk);const i=INV.find(x=>x.tk===tk);
+    const tr=$('tr');
+    tr.appendChild($('td',{},[$('strong',{text:tk,style:'color:var(--al)'})]));
+    if(d&&d.price){
+      const cur=d.currency!=='USD'?' '+d.currency:'';
+      tr.appendChild($('td',{text:'$'+d.price.toFixed(2)+cur}));
+      const m1td=$('td');m1td.appendChild(pctSpan(d.m1_return));tr.appendChild(m1td);
+      const ytdtd=$('td');ytdtd.appendChild(pctSpan(d.ytd_return));tr.appendChild(ytdtd);
+      const hightd=$('td');hightd.appendChild(pctSpan(d.pct_from_high));tr.appendChild(hightd);
+      // Signal
+      const sig=d.above_200ma===false?'Below 200MA':'Above 200MA';
+      const sigcol=d.above_200ma?'bg':'br';
+      const sigtd=$('td');sigtd.appendChild(badge(sig,sigcol));
+      if(d.golden_cross)sigtd.appendChild(badge(' Golden Cross','bg'));
+      tr.appendChild(sigtd);
+    } else {
+      for(let j=0;j<5;j++)tr.appendChild($('td',{text:'--',style:'color:var(--td)'}));
+    }
+    mb.appendChild(tr);
+  });
+  mktTbl.appendChild(mb);right.appendChild(mktTbl);
+
+  // Bank forecasts
+  right.appendChild($('div',{cls:'sect',text:'Bank Forecasts (Updated Mar 2026)',style:'margin-top:16px'}));
+  const ftbl=$('table');const fh=$('thead');const fhr=$('tr');
+  ['Bank','2026 Avg','Commentary'].forEach(h=>fhr.appendChild($('th',{text:h})));
+  fh.appendChild(fhr);ftbl.appendChild(fh);
+  const fb=$('tbody');
+  [['Goldman Sachs','$10-11K/t','300K t surplus. China demand "more acute than 2024". Tariff void.'],
+   ['StoneX','$11,490/t avg','>$13K "unsustainable". Specs at 80th %ile. SHFE max short.'],
+   ['World Bank','~$9,800/t','Most bearish major institution.'],
+   ['JPMorgan','$12,075/t','330K t deficit projected. More bullish.'],
+   ['Citigroup','$13-15K/t','Most bullish. "Long-awaited supply shortage."']
+  ].forEach(r=>{const tr=$('tr');r.forEach(c=>tr.appendChild($('td',{text:c})));fb.appendChild(tr)});
+  ftbl.appendChild(fb);right.appendChild(ftbl);
+  tw.appendChild(right);root.appendChild(tw);
+}
+
+// ============ UNIVERSE ============
+function renderUni(root){
+  const flt=$('div',{cls:'flt'});
+  function addF(l,id,opts){flt.appendChild($('label',{text:l}));const s=$('select',{id:id});
+    opts.forEach(([v,t])=>s.appendChild($('option',{value:v,text:t})));s.addEventListener('change',()=>buildUni(root));flt.appendChild(s)}
+  addF('Type:','ft',[['all','All'],['miner-major','Majors'],['miner-mid','Mid-Caps'],['etf','ETFs'],['futures','Futures'],['royalty','Royalty'],['equipment','Equipment'],['recycling','Recycling']]);
+  addF('Alignment:','fa',[['all','All'],['strong','Strong Bull'],['moderate','Moderate'],['tactical','Tactical'],['hedge','Hedge']]);
+  addF('Risk:','fr',[['all','All'],['low','Low'],['medium','Medium'],['high','High']]);
+  root.appendChild(flt);root.appendChild($('div',{id:'uni-wrap'}));buildUni(root);
+}
+function buildUni(){
+  const w=document.getElementById('uni-wrap');if(!w)return;while(w.firstChild)w.removeChild(w.firstChild);
+  const ft=document.getElementById('ft')?.value||'all',fa=document.getElementById('fa')?.value||'all',fr=document.getElementById('fr')?.value||'all';
+  let items=INV;if(ft!=='all')items=items.filter(i=>i.tp===ft);if(fa!=='all')items=items.filter(i=>i.al===fa);if(fr!=='all')items=items.filter(i=>i.rk===fr);
+  const t=$('table');const th=$('thead');const hr=$('tr');
+  ['Ticker','Price','Mkt Cap','P/E','YTD','1M','Alignment','Cu Lev','Risk','Key Factor','Action'].forEach(h=>hr.appendChild($('th',{text:h})));
+  th.appendChild(hr);t.appendChild(th);
+  const tb=$('tbody');
+  items.forEach(i=>{
+    const d=getMkt(i.tk);const tr=$('tr');
+    const tkTd=$('td');tkTd.appendChild($('strong',{text:i.tk,style:'color:var(--al)'}));tkTd.appendChild($('br'));
+    tkTd.appendChild($('span',{text:i.ex,style:'font-size:10px;color:var(--td)'}));tr.appendChild(tkTd);
+    if(d&&d.price){
+      const cur=d.currency!=='USD'?' '+d.currency:'';
+      tr.appendChild($('td',{text:'$'+d.price.toFixed(2)+cur}));
+      tr.appendChild($('td',{text:d.market_cap_fmt||'--',style:'color:var(--td)'}));
+      tr.appendChild($('td',{text:d.forward_pe?d.forward_pe+'x':'--',style:'color:var(--td)'}));
+      const ytdTd=$('td');ytdTd.appendChild(pctSpan(d.ytd_return));tr.appendChild(ytdTd);
+      const m1Td=$('td');m1Td.appendChild(pctSpan(d.m1_return));tr.appendChild(m1Td);
+    } else { for(let j=0;j<5;j++)tr.appendChild($('td',{text:'--',style:'color:var(--td)'})) }
+    const alTd=$('td');alTd.appendChild(abadge(i.al));tr.appendChild(alTd);
+    const lvTd=$('td');lvTd.appendChild(levbar(i.lev));tr.appendChild(lvTd);
+    const rkTd=$('td');rkTd.appendChild(rbadge(i.rk));tr.appendChild(rkTd);
+    tr.appendChild($('td',{text:i.kf,style:'font-size:12px;max-width:260px'}));
+    const acTd=$('td');acTd.appendChild(actbadge(i.act));tr.appendChild(acTd);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);w.appendChild(t);
+}
+
+// ============ SCENARIOS ============
+function renderScen(root){
+  const ctrl=$('div',{style:'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px'});
+  Object.entries(SCEN).forEach(([k,s])=>{
+    ctrl.appendChild($('button',{cls:'sc-btn'+(k==='base'?' active':''),text:s.nm+' ('+s.pr+') '+s.pb+'%',
+      onclick:e=>{curScen=k;document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));e.target.classList.add('active');rebuildScen()}}))});
+  root.appendChild(ctrl);
+
+  // Probability sliders
+  root.appendChild($('div',{cls:'sect',text:'Adjust Scenario Probabilities'}));
+  const slRow=$('div',{cls:'flt',id:'sl-row'});
+  Object.entries(SCEN).forEach(([k,s])=>{
+    slRow.appendChild($('label',{text:s.nm+':'}));
+    const sp=$('span',{id:'sp-'+k,text:scenProbs[k]+'%',style:'color:var(--al);font-weight:600;min-width:32px;display:inline-block'});
+    const sl=$('input',{type:'range',min:'0',max:'100',value:String(scenProbs[k]),id:'sl-'+k});
+    sl.addEventListener('input',()=>{scenProbs[k]=parseInt(sl.value);sp.textContent=scenProbs[k]+'%';rebuildEV()});
+    slRow.appendChild(sl);slRow.appendChild(sp);
+  });
+  root.appendChild(slRow);
+
+  // EV cards
+  root.appendChild($('div',{id:'ev-row',cls:'ev-row'}));
+
+  root.appendChild($('div',{id:'sc-detail',cls:'box',style:'margin-bottom:16px'}));
+  root.appendChild($('div',{id:'sc-tbl-wrap'}));
+  rebuildScen();rebuildEV();
+}
+function rebuildScen(){
+  const s=SCEN[curScen];const d=document.getElementById('sc-detail');if(!d)return;
+  while(d.firstChild)d.removeChild(d.firstChild);
+  d.appendChild($('h4',{text:s.nm+' - '+s.pr+' ('+s.pb+'% base probability)'}));
+  d.appendChild($('p',{text:s.cond}));
+  const w=document.getElementById('sc-tbl-wrap');if(!w)return;while(w.firstChild)w.removeChild(w.firstChild);
+  const sorted=[...INV].sort((a,b)=>b.rt[curScen]-a.rt[curScen]);
+  const t=$('table');const th=$('thead');const hr=$('tr');
+  ['Ticker','Name','Type','Est. Return','Confidence','Rationale'].forEach(h=>hr.appendChild($('th',{text:h})));
+  th.appendChild(hr);t.appendChild(th);
+  const tb=$('tbody');
+  sorted.forEach(i=>{
+    const ret=i.rt[curScen];const tr=$('tr');
+    tr.appendChild($('td',{},[$('strong',{text:i.tk,style:'color:var(--al)'})]));
+    tr.appendChild($('td',{text:i.nm}));tr.appendChild($('td',{text:i.tp.replace(/-/g,' ')}));
+    tr.appendChild($('td',{cls:ret>=0?'pnl-p':'pnl-n',text:(ret>=0?'+':'')+ret+'%'}));
+    tr.appendChild($('td',{text:i.al==='strong'?'High':i.al==='moderate'?'Medium':'Low'}));
+    tr.appendChild($('td',{text:i.kf,style:'font-size:12px;max-width:320px'}));tb.appendChild(tr)});
+  t.appendChild(tb);w.appendChild(t);
+}
+function rebuildEV(){
+  const evr=document.getElementById('ev-row');if(!evr)return;while(evr.firstChild)evr.removeChild(evr.firstChild);
+  const total=scenProbs.bear+scenProbs.base+scenProbs.bull+scenProbs.superbull;
+  // Probability-weighted Cu price
+  const cuEV=(scenProbs.bear*9750+scenProbs.base*11250+scenProbs.bull*13000+scenProbs.superbull*15000)/total;
+  const cuNow=getMkt('HG=F')&&getMkt('HG=F').price?Math.round(getMkt('HG=F').price*2204.62):12700;
+  const cuUp=((cuEV-cuNow)/cuNow*100).toFixed(1);
+
+  // Top 3 EV
+  const evs=INV.map(i=>{const ev=(scenProbs.bear*i.rt.bear+scenProbs.base*i.rt.base+scenProbs.bull*i.rt.bull+scenProbs.superbull*i.rt.superbull)/total;return{...i,ev:Math.round(ev*10)/10}}).sort((a,b)=>b.ev-a.ev);
+
+  const c1=$('div',{cls:'ev-card'});c1.appendChild($('h4',{text:'Expected Cu Price'}));
+  c1.appendChild($('div',{cls:'ev-val',style:'color:var(--al)',text:'$'+Math.round(cuEV).toLocaleString()+'/t'}));
+  c1.appendChild($('div',{cls:'d',text:'vs current ~$'+cuNow.toLocaleString()+' = '+cuUp+'% implied'}));
+  evr.appendChild(c1);
+
+  const c2=$('div',{cls:'ev-card'});c2.appendChild($('h4',{text:'Best EV: '+evs[0].tk}));
+  c2.appendChild($('div',{cls:'ev-val',style:'color:var(--g)',text:'+'+evs[0].ev+'%'}));
+  c2.appendChild($('div',{cls:'d',text:evs[0].nm}));evr.appendChild(c2);
+
+  const c3=$('div',{cls:'ev-card'});c3.appendChild($('h4',{text:'2nd: '+evs[1].tk+' | 3rd: '+evs[2].tk}));
+  c3.appendChild($('div',{cls:'ev-val',style:'color:var(--g)',text:'+'+evs[1].ev+'% | +'+evs[2].ev+'%'}));
+  c3.appendChild($('div',{cls:'d',text:'Probability-weighted expected returns'}));evr.appendChild(c3);
+
+  const c4=$('div',{cls:'ev-card'});c4.appendChild($('h4',{text:'Prob Sanity Check'}));
+  const ok=Math.abs(total-100)<1;
+  c4.appendChild($('div',{cls:'ev-val',style:'color:'+(ok?'var(--g)':'var(--r)'),text:total+'%'}));
+  c4.appendChild($('div',{cls:'d',text:ok?'Probabilities sum to ~100%':'Adjust sliders to sum to 100%'}));evr.appendChild(c4);
+}
+
+// ============ MARKET TIMING ============
+function renderTiming(root){
+  root.appendChild($('div',{cls:'sect',text:'Market Timing Signals'}));
+
+  // Signal dashboard
+  const cu=getMkt('HG=F');const fcx=getMkt('FCX');const copx=getMkt('COPX');
+  const cuPrice=cu&&cu.price?cu.price:5.76;const cuT=Math.round(cuPrice*2204.62);
+  const signals=[
+    {l:'Yangshan Import Premium',v:'$34/t',d:'CRITICAL: Buyers strike. Normal $60-100. Below $50 = demand rejection.',bull:false},
+    {l:'SHFE Net Positioning',v:'Max Short Since 2021',d:'Chinese industrial players with physical visibility are bearish.',bull:false},
+    {l:'CFTC Spec Net Longs',v:'80th Percentile',d:'Western specs max long. Unwind risk = rapid 15-25% correction.',bull:false},
+    {l:'Global Visible Stocks',v:'1.39M MT (23yr high)',d:'COMEX 536K + SHFE 433K. Contradicts shortage narrative.',bull:false},
+    {l:'China Mfg PMI',v:'49.0 (Feb 2026)',d:'Second consecutive month in contraction.',bull:false},
+    {l:'Cu vs 200-day MA',v:cu&&cu.above_200ma!==undefined?(cu.above_200ma?'ABOVE':'BELOW'):'--',
+     d:cu&&cu.ma_200?'200MA: $'+cu.ma_200.toFixed(2)+'/lb':'',bull:cu?cu.above_200ma:null},
+    {l:'TC/RC Benchmark 2026',v:'$0/tonne',d:'Historic zero. Concentrate scarcity signal.',bull:true},
+    {l:'Chinese Smelter Cuts',v:'>10% in 2026',d:'Govt halted ~2 MMT new capacity. Bullish for refined supply.',bull:true},
+    {l:'Cu vs Incentive Floor',v:cuT>8800?Math.round((cuT-8800)/8800*100)+'% above':'AT FLOOR',
+     d:'$8,800/t ($4.00/lb) = price floor',bull:cuT>9500},
+    {l:'Al Substitution Trend',v:'Accelerating',d:'State Grid Al tenders +40%. Partially irreversible demand destruction.',bull:false},
+    {l:'Resource Nationalism',v:'Active Cycle',d:'Chile royalties, DRC windfall tax, Panama. Caps equity upside >$5/lb.',bull:false},
+    {l:'Cobre Panama',v:'Decision June 2026',d:'Even restart = diluted economics for FM. Binary for stock, not for Cu.',bull:null},
+  ];
+
+  const sigGrid=$('div',{cls:'sig-row'});
+  signals.forEach(s=>{
+    const col=s.bull===true?'var(--g)':s.bull===false?'var(--r)':'var(--y)';
+    const sig=$('div',{cls:'sig'});
+    sig.appendChild($('div',{cls:'sl',text:s.l}));
+    sig.appendChild($('div',{cls:'sv',style:'color:'+col,text:s.v}));
+    sig.appendChild($('div',{cls:'sd',text:s.d}));
+    sigGrid.appendChild(sig);
+  });
+  root.appendChild(sigGrid);
+
+  // Net signal
+  const bullCount=signals.filter(s=>s.bull===true).length;
+  const bearCount=signals.filter(s=>s.bull===false).length;
+  const netSignal=bullCount-bearCount;
+  const netBox=$('div',{cls:'box',style:'margin-bottom:20px'});
+  const netCol=netSignal>=3?'var(--g)':netSignal>=-1?'var(--y)':'var(--r)';
+  const netLabel=netSignal>=3?'BULLISH':netSignal>=1?'LEAN BULLISH':netSignal>=-2?'CAUTIOUS':'BEARISH';
+  netBox.appendChild($('h4',{text:'Net Signal: '+bullCount+' bull / '+bearCount+' bear = '+netLabel,style:'color:'+netCol}));
+  netBox.appendChild($('p',{text:'Short-term (6-24mo): BEARISH. Physical market in acute demand destruction. Yangshan at $34, inventories at 23yr high, Chinese industrials max short. Long-term (3-10yr): BULLISH. Structural deficit is mathematical certainty. Best strategy: wait for near-term correction to $9.5-11K/t, then build structural long. For equities, prefer physical/futures over miners due to resource nationalism cap on upside.'}));
+  root.appendChild(netBox);
+
+  // Entry/Exit framework
+  root.appendChild($('div',{cls:'sect',text:'Entry & Exit Framework'}));
+  const tw=$('div',{cls:'two'});
+
+  const entryBox=$('div');
+  entryBox.appendChild($('div',{cls:'box'},[$('h4',{text:'NEAR-TERM: BEAR HEDGE (Now)'}),
+    $('p',{text:'COPX puts (3-6mo, 15-20% OTM). 1-2% of portfolio. Defined risk. COPX delivers 1.5-2x copper downside via miner operating leverage. September 2026 expiry to capture Q2-Q3 correction window.'})]));
+  entryBox.appendChild($('div',{cls:'box'},[$('h4',{text:'ACCUMULATE LONG (After Correction)'}),
+    $('p',{text:'Cu below $10,000/t (~$4.50/lb) AND Yangshan recovers above $60/t AND SHFE inventory draws below 300K t. This is the structural entry point - near incentive floor with physical market confirming recovery. Prefer physical copper (CPER, Sprott COP.UN) over miners.'})]));
+  entryBox.appendChild($('div',{cls:'box'},[$('h4',{text:'WAIT - DO NOT ENTER LONG NOW'}),
+    $('p',{text:'Physical market in acute demand destruction. Inventories at 23-yr high. Specs max long. The market is pricing 2030 into 2026 spot. Best long entry on further pullback toward $9,500-10,500/t.'})]));
+  tw.appendChild(entryBox);
+
+  const exitBox=$('div');
+  exitBox.appendChild($('div',{cls:'box'},[$('h4',{text:'BEAR CASE FAILING IF'}),
+    $('p',{text:'Yangshan premium recovers above $80/t (buyers returning). SHFE inventory draws below 300K t. China PMI prints above 50.5 for two consecutive months. COPX outflows exceed $500M/month (capitulation). If 3 of 4 occur: close bear hedges, rotate to structural long.'})]));
+  exitBox.appendChild($('div',{cls:'box'},[$('h4',{text:'BULL THESIS INVALIDATION'}),
+    $('p',{text:'TC/RCs return to +$30/t (scarcity resolved). Substitute breakthrough. Deep-sea mining at >500K tpa. China pivots away from grid electrification. All three demand pillars slowing simultaneously.'})]));
+  exitBox.appendChild($('div',{cls:'box'},[$('h4',{text:'RESOURCE NATIONALISM WARNING'}),
+    $('p',{text:'Above $5/lb: prefer physical copper/futures over mining equities. Host governments capture increasing share of upside (Chile royalties, DRC windfall tax, Panama renegotiation, Indonesia divestiture). Physical copper = 100% of price move. Miners = price minus govt take.'})]));
+  tw.appendChild(exitBox);
+  root.appendChild(tw);
+
+  // Position sizing
+  root.appendChild($('div',{cls:'sect',text:'Position Sizing Guide'}));
+  const posBox=$('div',{cls:'box'});
+  posBox.appendChild($('h4',{text:'Thesis-Aligned Allocation'}));
+  const posTbl=$('table');const pth=$('thead');const phr=$('tr');
+  ['Vehicle','Allocation %','Role','When to Enter'].forEach(h=>phr.appendChild($('th',{text:h})));
+  pth.appendChild(phr);posTbl.appendChild(pth);
+  const ptb=$('tbody');
+  [['COPX puts (Sep 2026)','1-2%','Bear hedge','NOW - defined risk, 1.5-2x Cu leverage'],
+   ['Cash reserve','40-50%','Dry powder for correction','Deploy on Cu <$10,000/t'],
+   ['CPER or HG futures','15-20%','Core Cu exposure (post-correction)','After Yangshan >$60, SHFE draws'],
+   ['FCX + SCCO','10-15%','Major miner leverage','After correction + resource natl. discount'],
+   ['Sprott COP.UN','5-10%','Physical Cu, no futures drag','After NYSE listing, Cu <$10K'],
+   ['IVN','3-5%','High-growth, high-risk','DRC stability, Cu recovery confirmed'],
+   ['FM','0%','AVOID at current levels','Only at CAD $15-20 (resource natl. priced in)'],
+  ].forEach(r=>{const tr=$('tr');r.forEach(c=>tr.appendChild($('td',{text:c})));ptb.appendChild(tr)});
+  posTbl.appendChild(ptb);posBox.appendChild(posTbl);root.appendChild(posBox);
+}
+
+// ============ CATALYSTS ============
+function renderCats(root){
+  root.appendChild($('div',{cls:'sect',text:'Catalyst Timeline (Updated March 2026)'}));
+  const tl=$('div',{cls:'tl'});
+  CATS.forEach(c=>{
+    const scol={critical:'r',high:'y',medium:'b'}[c.sg]||'b';
+    const item=$('div',{cls:'tl-i'+(c.tp==='past'?' past':'')});
+    const dtDiv=$('div',{cls:'dt'});dtDiv.appendChild(document.createTextNode(c.dt+' '));dtDiv.appendChild(badge(c.sg.toUpperCase(),scol));
+    item.appendChild(dtDiv);item.appendChild($('h4',{text:c.ti}));item.appendChild($('div',{cls:'imp',text:c.im}));tl.appendChild(item)});
+  root.appendChild(tl);
+}
+
+// ============ SUPPLY CHAIN ============
+function renderChain(root){
+  root.appendChild($('div',{cls:'sect',text:'Copper Value Chain'}));
+  CHAIN.forEach(layer=>{
+    const el=$('div',{cls:'chain'});
+    el.appendChild($('div',{cls:'chain-h'},[$('h4',{text:layer.nm}),$('span',{cls:'tn',text:layer.th})]));
+    const body=$('div',{cls:'chain-b'});
+    layer.cos.forEach(tk=>{const inv=INV.find(i=>i.tk===tk);const nm=inv?inv.nm:tk;
+      const d=getMkt(tk);const priceStr=d&&d.price?' $'+d.price.toFixed(2):'';
+      body.appendChild($('span',{cls:'chip'},[$('span',{cls:'tk',text:tk}),document.createTextNode(' '+nm+priceStr)]))});
+    el.appendChild(body);root.appendChild(el)});
+}
+
+// ============ SCORECARD ============
+function renderScore(root){
+  root.appendChild($('div',{cls:'sect',text:'Thesis Scorecard'}));
+  root.appendChild($('p',{text:'Each factor 0-5. Higher total = more thesis-aligned. EV = probability-weighted expected return.',style:'color:var(--td);font-size:12px;margin-bottom:12px'}));
+  const t=$('table');const th=$('thead');const hr=$('tr');
+  ['Ticker','Name','Supply','Energy','AI','Geo','Catalyst','M&A','Total','EV','Verdict'].forEach(h=>hr.appendChild($('th',{text:h})));
+  th.appendChild(hr);t.appendChild(th);
+  const total=scenProbs.bear+scenProbs.base+scenProbs.bull+scenProbs.superbull||100;
+  const scored=INV.map(i=>{const tot=Object.values(i.sc).reduce((a,b)=>a+b,0);
+    const ev=(scenProbs.bear*i.rt.bear+scenProbs.base*i.rt.base+scenProbs.bull*i.rt.bull+scenProbs.superbull*i.rt.superbull)/total;
+    return{...i,tot,ev:Math.round(ev*10)/10}}).sort((a,b)=>b.tot-a.tot);
+  const tb=$('tbody');
+  scored.forEach(i=>{
+    const tr=$('tr');
+    tr.appendChild($('td',{},[$('strong',{text:i.tk,style:'color:var(--al)'})]));
+    tr.appendChild($('td',{text:i.nm}));
+    tr.appendChild(scell(i.sc.su));tr.appendChild(scell(i.sc.en));tr.appendChild(scell(i.sc.ai));
+    tr.appendChild(scell(i.sc.ge));tr.appendChild(scell(i.sc.ca));tr.appendChild(scell(i.sc.ma));
+    tr.appendChild($('td',{text:String(i.tot),style:'font-weight:700;color:var(--al)'}));
+    const evTd=$('td');evTd.appendChild($('span',{text:(i.ev>=0?'+':'')+i.ev+'%',style:'color:'+(i.ev>=0?'var(--g)':'var(--r)')+';font-weight:600'}));
+    tr.appendChild(evTd);
+    const vTd=$('td');
+    if(i.tot>=24)vTd.appendChild(badge('Strong Buy','g'));else if(i.tot>=18)vTd.appendChild(badge('Buy','y'));
+    else if(i.tot>=12)vTd.appendChild(badge('Hold','b'));else vTd.appendChild(badge('Avoid','r'));
+    tr.appendChild(vTd);tb.appendChild(tr)});
+  t.appendChild(tb);root.appendChild(t);
+}
+
+// ============ INIT ============
+const R={dashboard:renderDash,universe:renderUni,scenarios:renderScen,timing:renderTiming,catalysts:renderCats,supplychain:renderChain,scorecard:renderScore};
+
+function updateHeader(){
+  const cu=getMkt('HG=F');
+  if(cu&&cu.price){
+    document.getElementById('cu-price').textContent='$'+cu.price.toFixed(3);
+    const chEl=document.getElementById('cu-change');
+    if(cu.change_pct!=null){
+      chEl.textContent=(cu.change_pct>=0?'+':'')+cu.change_pct.toFixed(2)+'%';
+      chEl.style.background=cu.change_pct>=0?'var(--gd)':'var(--rd)';
+      chEl.style.color=cu.change_pct>=0?'var(--g)':'var(--r)';
+    }
+  }
+  if(mktData&&mktData.updated)document.getElementById('data-ts').textContent='Data: '+mktData.updated;
+}
+
+async function loadData(){
+  // Try fetch first (works when served via HTTP)
+  try{
+    const resp=await fetch('market_data.json');
+    if(resp.ok){mktData=await resp.json();updateHeader()}
+  }catch(e){
+    // Fallback: try loading via XMLHttpRequest (works in some file:// contexts)
+    try{
+      const xhr=new XMLHttpRequest();
+      xhr.open('GET','market_data.json',false);
+      xhr.send();
+      if(xhr.status===200||xhr.status===0){mktData=JSON.parse(xhr.responseText);updateHeader()}
+    }catch(e2){
+      // Final fallback: try inline data
+      if(typeof INLINE_DATA!=='undefined'){mktData=INLINE_DATA;updateHeader()}
+      else{console.log('No market data. Run: uv run --python 3.12 --with yfinance python fetch_data.py')}
+    }
+  }
+  buildTabs();showPanel('dashboard');
+}
+loadData();
+</script>
+</body>
+</html>
