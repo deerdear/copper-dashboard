@@ -155,6 +155,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--td)}
+
+/* Disclaimer */
+.disclaimer{max-width:1400px;margin:40px auto 20px;padding:20px 40px;border-top:1px solid var(--bd);color:var(--tl);font-size:11px;line-height:1.7}
+.disclaimer p{margin-bottom:8px}
+.disclaimer strong{color:var(--td);font-weight:500}
 </style>
 </head>
 <body>
@@ -665,5 +670,10 @@ async function loadData(){
 }
 loadData();
 </script>
+<div class="disclaimer">
+  <p><strong>Disclaimer:</strong> This dashboard is for informational and research purposes only and does not constitute investment advice, financial advice, trading advice, or any other sort of advice. You should not treat any of the content as such. The information presented here is not a recommendation to buy, sell, or hold any security or commodity.</p>
+  <p>Market data is provided on an "as-is" basis and may be delayed, inaccurate, or incomplete. Past performance is not indicative of future results. All investment decisions involve risk, and you should conduct your own research and consult with a qualified financial advisor before making any investment.</p>
+  <p>The authors and operators of this dashboard accept no liability for any loss or damage arising from the use of or reliance on the information provided.</p>
+</div>
 </body>
 </html>
