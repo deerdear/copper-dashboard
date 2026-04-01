@@ -156,6 +156,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--td)}
 
+/* Expandable row */
+tr.expandable{cursor:pointer}
+tr.expandable:hover td{background:var(--bg2)}
+tr.expand-row td{padding:0;border-bottom:1px solid var(--bd)}
+tr.expand-row .expand-inner{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s ease;padding:0 16px}
+tr.expand-row.open .expand-inner{max-height:600px;padding:18px 16px}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.exp-grid{grid-template-columns:1fr}}
+.exp-section h5{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--td);font-weight:500;margin-bottom:8px}
+.exp-section p{font-size:12px;color:var(--t);line-height:1.7;margin-bottom:6px}
+.exp-kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bg2);font-size:12px}
+.exp-kv .ek{color:var(--td)}.exp-kv .ev{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--t)}
+.exp-scores{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.exp-score{text-align:center}
+.exp-score .es-bar{width:32px;height:4px;background:var(--bg3);border-radius:2px;margin:4px auto 2px;overflow:hidden}
+.exp-score .es-fill{height:100%;border-radius:2px}
+.exp-score .es-label{font-size:9px;color:var(--tl);text-transform:uppercase;letter-spacing:0.5px}
+.exp-ret{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.exp-ret .er-item{background:var(--bg);border:1px solid var(--bd);padding:6px 10px;font-size:11px;text-align:center;min-width:70px}
+.exp-ret .er-item .er-label{font-size:9px;color:var(--tl);text-transform:uppercase;letter-spacing:0.5px}
+.exp-ret .er-item .er-val{font-family:'JetBrains Mono',monospace;font-weight:600;margin-top:2px}
+tr.expandable td:first-child{position:relative;padding-left:22px}
+tr.expandable td:first-child::before{content:'\25B8';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--tl);font-size:10px;transition:transform .2s}
+tr.expandable.open td:first-child::before{transform:translateY(-50%) rotate(90deg);color:var(--cu)}
+
 /* Disclaimer */
 .disclaimer{max-width:1400px;margin:40px auto 20px;padding:20px 40px;border-top:1px solid var(--bd);color:var(--tl);font-size:11px;line-height:1.7}
 .disclaimer p{margin-bottom:8px}
@@ -410,7 +435,7 @@ function buildUni(){
   th.appendChild(hr);t.appendChild(th);
   const tb=$('tbody');
   items.forEach(i=>{
-    const d=getMkt(i.tk);const tr=$('tr');
+    const d=getMkt(i.tk);const tr=$('tr',{cls:'expandable'});
     const tkTd=$('td');tkTd.appendChild($('strong',{text:i.tk,style:'font-family:JetBrains Mono,monospace;color:var(--cu)'}));tkTd.appendChild($('br'));
     tkTd.appendChild($('span',{text:i.ex,style:'font-size:10px;color:var(--tl)'}));tr.appendChild(tkTd);
     if(d&&d.price){
@@ -427,8 +452,177 @@ function buildUni(){
     tr.appendChild($('td',{text:i.kf,style:'font-size:12px;max-width:260px'}));
     const acTd=$('td');acTd.appendChild(actbadge(i.act));tr.appendChild(acTd);
     tb.appendChild(tr);
+
+    // Expandable detail row
+    const expTr=$('tr',{cls:'expand-row'});
+    const expTd=$('td',{colspan:'11'});
+    const inner=$('div',{cls:'expand-inner'});
+    const grid=$('div',{cls:'exp-grid'});
+
+    // Column 1: Company profile + market data
+    const col1=$('div',{cls:'exp-section'});
+    col1.appendChild($('h5',{text:'Company Profile'}));
+    col1.appendChild($('p',{text:i.nm+' ('+i.tk+') - '+i.ex}));
+    col1.appendChild($('p',{text:getCompanyDesc(i.tk)}));
+    if(d&&d.price){
+      col1.appendChild($('h5',{text:'Market Data',style:'margin-top:12px'}));
+      const kvs=[
+        ['Price','$'+d.price.toFixed(2)+(d.currency!=='USD'?' '+d.currency:'')],
+        ['Market Cap',d.market_cap_fmt||'--'],
+        ['P/E (Trailing)',d.pe_ratio?d.pe_ratio+'x':'--'],
+        ['P/E (Forward)',d.forward_pe?d.forward_pe+'x':'--'],
+        ['Dividend Yield',d.dividend_yield?((d.dividend_yield/100).toFixed(2)+'%'):'--'],
+        ['Beta',d.beta?d.beta.toFixed(2):'--'],
+        ['50-day MA',d.ma_50?'$'+d.ma_50.toFixed(2):'--'],
+        ['200-day MA',d.ma_200?'$'+d.ma_200.toFixed(2):'--'],
+        ['52w High','$'+(d.w52_high||'--')],
+        ['52w Low','$'+(d.w52_low||'--')],
+        ['% from High',d.pct_from_high!=null?d.pct_from_high.toFixed(1)+'%':'--'],
+      ];
+      kvs.forEach(([k,v])=>{
+        const row=$('div',{cls:'exp-kv'});
+        row.appendChild($('span',{cls:'ek',text:k}));
+        row.appendChild($('span',{cls:'ev',text:v}));
+        col1.appendChild(row);
+      });
+    }
+    grid.appendChild(col1);
+
+    // Column 2: Thesis scores + scenario returns
+    const col2=$('div',{cls:'exp-section'});
+    col2.appendChild($('h5',{text:'Thesis Alignment Scores'}));
+    const scoreLabels={su:'Supply',en:'Energy',ai:'AI/Data',ge:'Geopolitical',ca:'Catalyst',ma:'M&A'};
+    const scores=$('div',{cls:'exp-scores'});
+    Object.entries(i.sc).forEach(([k,v])=>{
+      const sc=$('div',{cls:'exp-score'});
+      const bar=$('div',{cls:'es-bar'});
+      const col=v>=4?'var(--g)':v>=3?'var(--y)':v>=2?'var(--td)':'var(--r)';
+      bar.appendChild($('div',{cls:'es-fill',style:'width:'+(v/5*100)+'%;background:'+col}));
+      sc.appendChild($('div',{text:v+'/5',style:'font-family:JetBrains Mono,monospace;font-size:13px;font-weight:600;color:'+col}));
+      sc.appendChild(bar);
+      sc.appendChild($('div',{cls:'es-label',text:scoreLabels[k]||k}));
+      scores.appendChild(sc);
+    });
+    col2.appendChild(scores);
+    const tot=Object.values(i.sc).reduce((a,b)=>a+b,0);
+    col2.appendChild($('p',{text:'Total: '+tot+'/30',style:'margin-top:8px;font-family:JetBrains Mono,monospace;font-weight:600;color:var(--cu)'}));
+
+    col2.appendChild($('h5',{text:'Scenario Returns',style:'margin-top:16px'}));
+    const retRow=$('div',{cls:'exp-ret'});
+    [['Bear',i.rt.bear,'var(--r)'],['Base',i.rt.base,'var(--td)'],['Bull',i.rt.bull,'var(--g)'],['Super-Bull',i.rt.superbull,'var(--g)']].forEach(([label,val,col])=>{
+      const item=$('div',{cls:'er-item'});
+      item.appendChild($('div',{cls:'er-label',text:label}));
+      const valCol=val>=0?'var(--g)':'var(--r)';
+      item.appendChild($('div',{cls:'er-val',style:'color:'+valCol,text:(val>=0?'+':'')+val+'%'}));
+      retRow.appendChild(item);
+    });
+    col2.appendChild(retRow);
+
+    // EV calculation
+    const totalProb=scenProbs.bear+scenProbs.base+scenProbs.bull+scenProbs.superbull||100;
+    const ev=(scenProbs.bear*i.rt.bear+scenProbs.base*i.rt.base+scenProbs.bull*i.rt.bull+scenProbs.superbull*i.rt.superbull)/totalProb;
+    const evCol=ev>=0?'var(--g)':'var(--r)';
+    col2.appendChild($('p',{text:'Expected Return: '+(ev>=0?'+':'')+ev.toFixed(1)+'%',style:'margin-top:10px;font-family:JetBrains Mono,monospace;font-weight:700;color:'+evCol}));
+    grid.appendChild(col2);
+
+    // Column 3: How it compares + supply chain
+    const col3=$('div',{cls:'exp-section'});
+    col3.appendChild($('h5',{text:'How It Compares'}));
+    const peers=getPeers(i);
+    if(peers.length>0){
+      peers.forEach(p=>{
+        const pd=getMkt(p.tk);
+        const row=$('div',{cls:'exp-kv'});
+        row.appendChild($('span',{cls:'ek',text:p.tk+' ('+p.nm+')'}));
+        const vals=[];
+        if(pd&&pd.forward_pe)vals.push('Fwd P/E: '+pd.forward_pe+'x');
+        if(pd&&pd.pct_from_high!=null)vals.push('vs High: '+pd.pct_from_high.toFixed(0)+'%');
+        row.appendChild($('span',{cls:'ev',text:vals.join(' | ')||'--'}));
+        col3.appendChild(row);
+      });
+    }
+
+    col3.appendChild($('h5',{text:'Value Chain Position',style:'margin-top:12px'}));
+    const chains=CHAIN.filter(c=>c.cos.includes(i.tk));
+    chains.forEach(c=>{
+      col3.appendChild($('p',{text:c.nm,style:'font-weight:600;color:var(--cu);font-size:11px;margin-bottom:2px'}));
+      col3.appendChild($('p',{text:c.th,style:'font-size:11px;color:var(--td);margin-bottom:8px'}));
+    });
+
+    col3.appendChild($('h5',{text:'Key Risk',style:'margin-top:12px'}));
+    col3.appendChild($('p',{text:getKeyRisk(i.tk),style:'font-size:12px;color:var(--r)'}));
+    grid.appendChild(col3);
+
+    inner.appendChild(grid);
+    expTd.appendChild(inner);
+    expTr.appendChild(expTd);
+    tb.appendChild(expTr);
+
+    // Toggle expand on click
+    tr.addEventListener('click',()=>{
+      const wasOpen=tr.classList.contains('open');
+      // Close all others
+      tb.querySelectorAll('tr.expandable.open').forEach(r=>{r.classList.remove('open');r.nextElementSibling.classList.remove('open')});
+      if(!wasOpen){tr.classList.add('open');expTr.classList.add('open')}
+    });
   });
   t.appendChild(tb);w.appendChild(t);
+}
+
+function getCompanyDesc(tk){
+  const descs={
+    'FCX':'World\'s largest publicly traded copper producer. Operates the massive Grasberg mine in Indonesia (one of the world\'s largest gold and copper deposits) plus significant operations in the Americas including Morenci (Arizona), Cerro Verde (Peru), and El Abra (Chile). Primary pure-play copper investment for institutional investors.',
+    'BHP':'World\'s largest mining company by market cap. Operates Escondida in Chile (world\'s largest copper mine) plus Olympic Dam (Australia). Diversified across iron ore, coal, nickel, and potash. Copper designated as #1 growth priority following failed Anglo American bid.',
+    'SCCO':'Subsidiary of Grupo Mexico. Operates large-scale, low-cost copper mines in Peru and Mexico. Known for exceptionally long reserve life and low cash costs. Premium valuation reflects operational excellence and political connections.',
+    'IVN':'Founder-led explorer/developer (Robert Friedland). Flagship Kamoa-Kakula in DRC is one of the highest-grade major copper discoveries in decades. Western Forelands exploration could double the deposit. High-growth, high-risk due to DRC jurisdiction.',
+    'KGHM':'Polish state-controlled copper and silver producer. Operates mines in Poland (Legnica-Glogow) and Chile (Sierra Gorda). Provides European copper exposure and strategic importance for EU supply security.',
+    'FM':'Operates Cobre Panama (currently suspended), Sentinel and Kansanshi in Zambia, plus nickel operations. Panama mine suspension created significant uncertainty. Heavy debt load (3.3x leverage). Even restart means diluted economics due to resource nationalism.',
+    'TECK.B':'Canadian diversified miner transitioning to pure copper focus after selling coal business to Glencore. QB2 in Chile ramping up. Potential Anglo American merger target. Highland Valley in BC.',
+    'HBM':'Mid-cap copper-gold producer with operations in Peru (Constancia) and Canada (Snow Lake, Copper Mountain). Potential M&A target in consolidating copper sector. Good operating track record.',
+    'ERO':'Pure-play copper producer focused on Brazil. Operates MCSA (Caraiba) underground mine and developing Tucuma project. Small cap with high operational leverage to copper prices.',
+    'CPER':'ETF providing direct exposure to copper futures prices via the SummerHaven Copper Index. No single-company risk. Subject to futures roll costs and contango drag. Most direct listed copper price exposure.',
+    'COPX':'ETF holding a basket of global copper mining equities. Provides diversified miner exposure with ~1.5-2x leverage to copper prices through operating leverage. Higher volatility than physical copper.',
+    'JJCTF':'Exchange-traded note tracking Bloomberg Copper Subindex. Direct copper price exposure with counterparty risk (Barclays). Very low liquidity.',
+    'WPM':'Precious metals streaming company with copper streams from Salobo (Vale) and Constancia (Hudbay). Lower leverage to copper, lower risk. Primarily a gold/silver play with copper optionality.',
+    'FNV':'Royalty/streaming company. Small copper exposure primarily through Cobre Panama royalty (currently uncertain). Mainly a gold company. Copper is a small portion of revenue.',
+    'CAT':'World\'s largest construction and mining equipment manufacturer. Benefits from increased mining activity as declining ore grades require 2.5x more rock processing. Highly diversified beyond mining.',
+    'EPIR':'Swedish mining and infrastructure equipment company (spun off from Atlas Copco). Specializes in drilling, rock excavation, and construction equipment. Leading automation and electrification of underground mining.',
+    'Aurubis':'Europe\'s largest copper smelter and leading copper recycler. Processes both primary concentrates and secondary (recycled) materials. Strategic importance for European copper supply chain independence.',
+    'AA':'World\'s largest bauxite/alumina/aluminum producer. Aluminum is copper\'s primary substitute - when copper exceeds $4/lb, aluminum substitution accelerates (cables, busbars, heat exchangers). Inverse correlation at high Cu prices.',
+    'SAND':'Sandvik AB - Swedish engineering company producing mining equipment, rock processing, and metal-cutting tools. Benefits from increased mining activity and underground mining transitions.',
+    'HG=F':'COMEX copper futures - the benchmark US copper contract. Most liquid copper derivative. Direct price exposure with leverage via margin. Options available for defined-risk strategies.',
+  };
+  return descs[tk]||'Copper-related investment vehicle in the '+INV.find(x=>x.tk===tk)?.tp+' segment.';
+}
+
+function getPeers(item){
+  return INV.filter(i=>i.tp===item.tp&&i.tk!==item.tk).slice(0,4);
+}
+
+function getKeyRisk(tk){
+  const risks={
+    'FCX':'Indonesia resource nationalism - government forced 51% divestiture. Grasberg underground transition execution risk.',
+    'BHP':'Diversification dilutes copper upside. Iron ore cycle may offset copper gains. Political risks across multiple jurisdictions.',
+    'SCCO':'Premium valuation may already price in bull case. Peru political instability. Mexico regulatory changes under new government.',
+    'IVN':'DRC jurisdiction risk - political instability, infrastructure challenges, potential resource nationalism. Single-asset concentration.',
+    'KGHM':'Polish state control limits shareholder returns. High-cost Polish operations. Sierra Gorda underperformance.',
+    'FM':'Cobre Panama restart uncertain and diluted. 3.3x debt leverage. Wrong risk/reward at current prices. Resource nationalism.',
+    'TECK.B':'QB2 ramp execution risk. Potential M&A premium creates downside if deal fails. Transition execution.',
+    'HBM':'Small cap volatility. Peru political risk. Copper Mountain integration. Limited scale vs majors.',
+    'ERO':'Brazil single-country risk. Small cap - limited liquidity. Tucuma development execution risk.',
+    'CPER':'Contango drag erodes returns in flat/backwardated markets. Tracking error vs spot copper.',
+    'COPX':'1.5-2x downside leverage to copper in corrections. Resource nationalism caps upside for underlying miners above $5/lb.',
+    'JJCTF':'Near-zero liquidity (14 avg daily volume). Barclays counterparty risk. ETN structure.',
+    'WPM':'Low copper leverage (primarily gold/silver). Streaming model underperforms in strong copper rallies.',
+    'FNV':'Minimal copper exposure. Cobre Panama royalty uncertain. Premium valuation for a gold company.',
+    'CAT':'Highly diversified - mining is a fraction of revenue. Cyclical. May not capture copper-specific upside.',
+    'EPIR':'Swedish krona exposure. Mining capex cycles. Premium valuation assumes continued automation adoption.',
+    'Aurubis':'Smelting margins compressed (TC/RC at zero). European energy costs. Recycling growth dependent on scrap supply.',
+    'AA':'Inverse correlation breaks down if both metals rally (commodity supercycle). Energy cost sensitive. Cyclical.',
+    'SAND':'Diversified beyond mining. Swedish krona FX risk. Cyclical capex dependency.',
+    'HG=F':'Leverage amplifies losses. Margin calls in volatile markets. Roll costs. Requires active management.',
+  };
+  return risks[tk]||'Market and operational risks typical of the '+INV.find(x=>x.tk===tk)?.tp+' segment.';
 }
 
 // ============ SCENARIOS ============
